@@ -5,6 +5,9 @@
 #include <string.h>
 #include <stdint.h>
 
+#define HEF_MAX_GLOBAL_DEPTH 20u
+#define HEF_MAX_DIRECTORY_ENTRIES (1u << HEF_MAX_GLOBAL_DEPTH)
+#define HEF_DIRECTORY_RESERVED_BYTES ((uint64_t)HEF_MAX_DIRECTORY_ENTRIES * sizeof(uint64_t))
 #define HEF_MAGIC 0x31464548u
 #define HEF_VERSION 1u
 #define HEF_MAX_KEY_LEN 63u
@@ -159,7 +162,7 @@ HashExtStatus hef_create(const char *path,
     hf->header.bucket_count = directory_entry_count;
     hf->header.size = 0u;
     hf->header.directory_offset = sizeof(HefFileHeader);
-    hf->header.next_bucket_offset = hf->header.directory_offset + ((uint64_t)directory_entry_count * sizeof(uint64_t));
+    hf->header.next_bucket_offset = hf->header.directory_offset + HEF_DIRECTORY_RESERVED_BYTES;
 
     if (hef_write_header(hf) != HEF_OK || hef_write_directory(hf) != HEF_OK)
     {
